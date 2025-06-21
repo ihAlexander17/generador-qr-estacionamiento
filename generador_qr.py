@@ -3,7 +3,8 @@ import qrcode
 from PIL import Image
 import random
 from datetime import datetime
-import io  # Necesario para convertir la imagen a bytes
+import pytz  # Para manejar zona horaria
+import io  # Para convertir la imagen a bytes y permitir la descarga
 
 # Función para generar placas aleatorias al estilo México (3 letras + 3 números)
 def generar_placa():
@@ -22,8 +23,9 @@ if nombre_usuario:
     # Generar placa aleatoria
     placa = generar_placa()
 
-    # Obtener la hora actual
-    hora_actual = datetime.now().strftime("%Y-%m-%d %H:%M")
+    # Obtener la hora actual en zona horaria de Ciudad de México
+    zona_horaria = pytz.timezone("America/Mexico_City")
+    hora_actual = datetime.now(zona_horaria).strftime("%Y-%m-%d %H:%M")
 
     # Crear el contenido del QR: Nombre + Placa + Hora actual
     datos = f"Nombre: {nombre_usuario} | Placa: {placa} | Hora: {hora_actual}"
