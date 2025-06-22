@@ -3,37 +3,44 @@ import qrcode
 from PIL import Image
 import random
 from datetime import datetime
-import pytz  # Para manejar zona horaria
-import io  # Para convertir la imagen a bytes y permitir la descarga
+import pytz
+import io
+import json
 
-# Función para generar placas aleatorias al estilo México (3 letras + 3 números)
 def generar_placa():
     letras = ''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=3))
     numeros = ''.join(random.choices("0123456789", k=3))
     return letras + numeros
 
-# Título de la página
 st.title("Generador de Código QR para Estacionamiento")
+
+# Usamos session_state para controlar si ya se descargó el QR
+if 'descargado' not in st.session_state:
+    st.session_state.descargado = False
 
 # Solicitar el nombre del usuario
 nombre_usuario = st.text_input("Ingresa tu nombre:")
 
-# Si el nombre fue ingresado
-if nombre_usuario:
-    # Generar placa aleatoria
+if nombre_usuario and not st.session_state.descargado:
     placa = generar_placa()
 
-    # Obtener la hora actual en zona horaria de Ciudad de México
     zona_horaria = pytz.timezone("America/Mexico_City")
     hora_actual = datetime.now(zona_horaria).strftime("%Y-%m-%d %H:%M")
 
-    # Crear el contenido del QR: Nombre + Placa + Hora actual
-    datos = f"Nombre: {nombre_usuario} | Placa: {placa} | Hora: {hora_actual}"
+    # Crear el contenido del QR con hora de entrada
+    contenido_qr = {
+        "nombre": nombre_usuario,
+        "placa": placa,
+        "hora_entrada": hora_actual
+    }
 
-    # Generar y convertir la imagen del QR a formato compatible
-    qr_img = qrcode.make(datos).convert("RGB")
+    # Convertir a JSON para el QR
+    contenido_json = json.dumps(contenido_qr)
 
-    # Mostrar la imagen del QR
+    # Generar imagen del QR
+    qr_img = qrcode.make(contenido_json).convert("RGB")
+
+    # Mostrar el QR
     st.image(qr_img, caption="Código QR Generado")
 
     # Convertir la imagen a bytes para permitir descarga
@@ -49,16 +56,20 @@ if nombre_usuario:
         mime="image/png"
     )
 
-    # Mostrar los datos generados para el usuario
-    st.subheader("Datos Generados:")
-    st.write(f"Nombre: {nombre_usuario}")
-    st.write(f"Placa: {placa}")
-    st.write(f"Hora de Generación: {hora_actual}")
+    # Mostrar los datos de manera clara
+    st.subheader("🧾 Datos de tu ticket de entrada:")
+    st.write(f"👤 Nombre: {nombre_usuario}")
+    st.write(f"🚗 Placa: {placa}")
+    st.write(f"⏰ Hora de Entrada: {hora_actual}")
 
-    # Mostrar el contenido del QR como texto
-    st.success(f"Contenido del QR: {datos}")
-
-    # Recomendación para los usuarios
+    # Mensaje de advertencia para el usuario
     st.info("📌 No cierres esta página hasta escanear o descargar tu código QR.")
+
+    # Después de la descarga, marcar que el QR ya fue descargado
+    st.session_state.descargado = True
+
+elif st.session_state.descargado:
+    st.success("Ya descargaste el QR. Para generar uno nuevo, por favor recarga la página.")
+
 else:
     st.warning("Por favor, ingresa tu nombre para generar el QR.")
