@@ -48,13 +48,14 @@ if nombre_usuario and not st.session_state.descargado:
     qr_img.save(buffer, format="PNG")
     buffer.seek(0)
 
-    # Botón de descarga
-    st.download_button(
-        label="Descargar mi QR",
-        data=buffer,
-        file_name=f"{placa}_qr.png",
-        mime="image/png"
-    )
+    # Botón de descarga (solo habilitado si el QR no ha sido descargado)
+    if not st.session_state.descargado:
+        st.download_button(
+            label="Descargar mi QR",
+            data=buffer,
+            file_name=f"{placa}_qr.png",
+            mime="image/png"
+        )
 
     # Mostrar los datos de manera clara
     st.subheader("🧾 Datos de tu ticket de entrada:")
@@ -65,11 +66,8 @@ if nombre_usuario and not st.session_state.descargado:
     # Mensaje de advertencia para el usuario
     st.info("📌 No cierres esta página hasta escanear o descargar tu código QR.")
 
-    # Después de la descarga, marcar que el QR ya fue descargado
-    st.session_state.descargado = True
-
-    # Forzar la recarga de la página
-    st.experimental_rerun()
+    # Marcar que el QR ya fue descargado
+    st.session_state.descargado = True  # Se marca como descargado para evitar más descargas
 
 elif st.session_state.descargado:
     st.success("Ya descargaste el QR. Para generar uno nuevo, por favor recarga la página.")
