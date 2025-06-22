@@ -72,7 +72,7 @@ if nombre_usuario and not st.session_state.descargado:
     st.session_state.descargado = True
 
 elif st.session_state.descargado:
-    st.success("✅ Ya descargaste el QR. Si deseas generar otro, por favor recarga la página.")
+    st.success("Ya descargaste el QR. Si deseas generar otro, por favor recarga la página.")
 
 else:
     st.warning("Por favor, ingresa tu nombre para generar el QR.")
