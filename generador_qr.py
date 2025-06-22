@@ -68,6 +68,9 @@ if nombre_usuario and not st.session_state.descargado:
     # Después de la descarga, marcar que el QR ya fue descargado
     st.session_state.descargado = True
 
+    # Forzar la recarga de la página
+    st.experimental_rerun()
+
 elif st.session_state.descargado:
     st.success("Ya descargaste el QR. Para generar uno nuevo, por favor recarga la página.")
 
